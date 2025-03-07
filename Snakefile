@@ -9,6 +9,9 @@ containerized: "docker://visze/cadd-scripts-v1_7:0.1.0"
 # need glob to get chunked files
 import psutil 
 
+# import math to use ceiling on memory calculations, otherwise may result in / 0
+import math
+
 # Min version of snakemake
 from snakemake.utils import min_version
 
@@ -44,9 +47,9 @@ if config['esm_slots'] < 1:
 # then assign other resources
 config['esm_load'] = 100 if config['esm_slots'] < 1 else int(100/config['esm_slots']) 
 config['esm_threads'] = int(workflow.cores /  config['esm_slots'])
-config['vep_load'] = 100 if system_memory < 4 else int(100/int(0.9*system_memory / 4 ))  # up to 4Gb/ram
-config['regseq_load'] = 100 if system_memory < 2 else int(100/int(0.9*system_memory / 2 ))   # up to 2Gb of ram
-config['mms_load'] = 100 if system_memory < 16 else int(100/int(0.9*system_memory / 16 ))   # up to 16Gb/ram
+config['vep_load'] = 100 if system_memory < 4 else math.ceil(100/int(0.9*system_memory / 4 ))  # up to 4Gb/ram
+config['regseq_load'] = 100 if system_memory < 2 else math.ceil(100/int(0.9*system_memory / 2 ))   # up to 2Gb of ram
+config['mms_load'] = 100 if system_memory < 16 else math.ceil(100/int(0.9*system_memory / 16 ))   # up to 16Gb/ram
 config['mms_threads'] = int(workflow.cores / (100/config['mms_load']))
 config['anno_load'] = 1 # disk IO intensive
 config['impute_load'] = 1 
